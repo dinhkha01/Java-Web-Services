@@ -1,0 +1,6 @@
+Một HTTP Request bao gồm các thành phần chính sau đây.
+**Method** là phương thức HTTP xác định hành động muốn thực hiện, phổ biến nhất là GET (lấy dữ liệu), POST (gửi dữ liệu mới), PUT (cập nhật dữ liệu) và DELETE (xóa dữ liệu).
+**URL** (Uniform Resource Locator) chỉ định địa chỉ tài nguyên trên server mà client muốn truy cập, bao gồm protocol, domain, path và các tham số query string nếu có.
+**Headers** chứa các thông tin metadata như Content-Type, Authorization, User-Agent, giúp server hiểu cách xử lý request.
+Cuối cùng là **Body**, phần tùy chọn chứa dữ liệu thực tế được gửi kèm, thường có trong POST và PUT requests để truyền tải thông tin như form data, JSON, hoặc file uploads.
+ Các thành phần này phối hợp để tạo nên một request hoàn chỉnh, cho phép client giao tiếp hiệu quả với web server.
