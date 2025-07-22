@@ -1,0 +1,215 @@
+# Hướng dẫn Đặt tên Endpoint API Quản lý Sách
+
+## 1. Nguyên tắc cơ bản
+
+### Quy tắc chung
+- Sử dụng **danh từ số nhiều** cho tên resource (books, authors, genres)
+- Sử dụng **chữ thường** và **dấu gạch ngang** để phân cách từ
+- Endpoint phải **rõ ràng** và **dễ hiểu**
+- Tuân thủ chuẩn **RESTful API**
+
+### Cấu trúc URL chuẩn
+```
+https://api.bookstore.com/v1/{resource}
+https://api.bookstore.com/v1/{resource}/{id}
+https://api.bookstore.com/v1/{resource}/{id}/{sub-resource}
+```
+
+## 2. Endpoint cho Resource SÁCH (Books)
+
+### 2.1 Quản lý sách cơ bản
+
+| Phương thức | Endpoint | Mô tả | Ví dụ Request Body |
+|-------------|----------|-------|-------------------|
+| **GET** | `/books` | Lấy danh sách tất cả sách | N/A |
+| **GET** | `/books/{id}` | Lấy thông tin một cuốn sách | N/A |
+| **POST** | `/books` | Tạo sách mới | `{"title": "Tắt đèn", "author_id": 1, "genre_id": 2}` |
+| **PUT** | `/books/{id}` | Cập nhật toàn bộ thông tin sách | `{"title": "Tắt đèn", "author_id": 1, "genre_id": 2}` |
+| **PATCH** | `/books/{id}` | Cập nhật một phần thông tin sách | `{"title": "Tắt đèn - Tái bản"}` |
+| **DELETE** | `/books/{id}` | Xóa một cuốn sách | N/A |
+
+### 2.2 Endpoint tìm kiếm và lọc
+
+| Phương thức | Endpoint | Mô tả |
+|-------------|----------|-------|
+| **GET** | `/books?search={keyword}` | Tìm kiếm sách theo từ khóa |
+| **GET** | `/books?author_id={id}` | Lọc sách theo tác giả |
+| **GET** | `/books?genre_id={id}` | Lọc sách theo thể loại |
+| **GET** | `/books?published_year={year}` | Lọc sách theo năm xuất bản |
+| **GET** | `/books?sort=title&order=asc` | Sắp xếp sách theo tiêu đề |
+| **GET** | `/books?page=1&limit=10` | Phân trang |
+
+### 2.3 Endpoint quan hệ với resource khác
+
+| Phương thức | Endpoint | Mô tả |
+|-------------|----------|-------|
+| **GET** | `/books/{id}/reviews` | Lấy đánh giá của một cuốn sách |
+| **POST** | `/books/{id}/reviews` | Thêm đánh giá cho sách |
+| **GET** | `/books/{id}/similar` | Lấy sách tương tự |
+
+## 3. Endpoint cho Resource TÁC GIẢ (Authors)
+
+### 3.1 Quản lý tác giả cơ bản
+
+| Phương thức | Endpoint | Mô tả | Ví dụ Request Body |
+|-------------|----------|-------|-------------------|
+| **GET** | `/authors` | Lấy danh sách tác giả | N/A |
+| **GET** | `/authors/{id}` | Lấy thông tin một tác giả | N/A |
+| **POST** | `/authors` | Tạo tác giả mới | `{"name": "Ngô Tất Tố", "birth_year": 1894}` |
+| **PUT** | `/authors/{id}` | Cập nhật thông tin tác giả | `{"name": "Ngô Tất Tố", "birth_year": 1894}` |
+| **DELETE** | `/authors/{id}` | Xóa tác giả | N/A |
+
+### 3.2 Endpoint quan hệ
+
+| Phương thức | Endpoint | Mô tả |
+|-------------|----------|-------|
+| **GET** | `/authors/{id}/books` | Lấy danh sách sách của tác giả |
+| **GET** | `/authors/{id}/books?published_year={year}` | Lọc sách của tác giả theo năm |
+
+## 4. Endpoint cho Resource THỂ LOẠI (Genres)
+
+### 4.1 Quản lý thể loại cơ bản
+
+| Phương thức | Endpoint | Mô tả | Ví dụ Request Body |
+|-------------|----------|-------|-------------------|
+| **GET** | `/genres` | Lấy danh sách thể loại | N/A |
+| **GET** | `/genres/{id}` | Lấy thông tin một thể loại | N/A |
+| **POST** | `/genres` | Tạo thể loại mới | `{"name": "Tiểu thuyết", "description": "Thể loại văn xuôi dài"}` |
+| **PUT** | `/genres/{id}` | Cập nhật thông tin thể loại | `{"name": "Tiểu thuyết", "description": "Thể loại văn xuôi dài"}` |
+| **DELETE** | `/genres/{id}` | Xóa thể loại | N/A |
+
+### 4.2 Endpoint quan hệ
+
+| Phương thức | Endpoint | Mô tả |
+|-------------|----------|-------|
+| **GET** | `/genres/{id}/books` | Lấy danh sách sách thuộc thể loại |
+| **GET** | `/genres/{id}/books?sort=popularity` | Sách phổ biến nhất trong thể loại |
+
+## 5. Endpoint cho Resource ĐÁNH GIÁ (Reviews)
+
+| Phương thức | Endpoint | Mô tả | Ví dụ Request Body |
+|-------------|----------|-------|-------------------|
+| **GET** | `/reviews` | Lấy danh sách đánh giá | N/A |
+| **GET** | `/reviews/{id}` | Lấy chi tiết một đánh giá | N/A |
+| **POST** | `/reviews` | Tạo đánh giá mới | `{"book_id": 1, "rating": 5, "comment": "Rất hay!"}` |
+| **PUT** | `/reviews/{id}` | Cập nhật đánh giá | `{"rating": 4, "comment": "Khá hay"}` |
+| **DELETE** | `/reviews/{id}` | Xóa đánh giá | N/A |
+
+## 6. Endpoint Thống kê và Báo cáo
+
+| Phương thức | Endpoint | Mô tả |
+|-------------|----------|-------|
+| **GET** | `/statistics/books-count` | Tổng số sách |
+| **GET** | `/statistics/authors-count` | Tổng số tác giả |
+| **GET** | `/statistics/popular-books` | Top sách phổ biến |
+| **GET** | `/statistics/popular-authors` | Top tác giả được yêu thích |
+| **GET** | `/statistics/books-by-genre` | Thống kê sách theo thể loại |
+
+## 7. Ví dụ Response Format
+
+### Thành công (200 OK)
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Tắt đèn",
+    "author": {
+      "id": 1,
+      "name": "Ngô Tất Tố"
+    },
+    "genre": {
+      "id": 2,
+      "name": "Tiểu thuyết"
+    },
+    "published_year": 1939
+  },
+  "message": "Lấy thông tin sách thành công"
+}
+```
+
+### Danh sách có phân trang
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Tắt đèn",
+      "author": "Ngô Tất Tố"
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "total_pages": 5,
+    "total_items": 50,
+    "items_per_page": 10
+  }
+}
+```
+
+### Lỗi (400 Bad Request)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Tiêu đề sách không được để trống",
+    "details": {
+      "field": "title",
+      "value": ""
+    }
+  }
+}
+```
+
+## 8. Best Practices
+
+### Đặt tên URL
+- ✅ `/books` (danh từ số nhiều)
+- ❌ `/getBooks` (động từ)
+- ❌ `/book` (danh từ số ít)
+
+### Sử dụng HTTP Methods đúng cách
+- **GET**: Lấy dữ liệu (không thay đổi state)
+- **POST**: Tạo mới resource
+- **PUT**: Cập nhật toàn bộ resource
+- **PATCH**: Cập nhật một phần resource
+- **DELETE**: Xóa resource
+
+### Xử lý lỗi
+- **200**: OK - Thành công
+- **201**: Created - Tạo mới thành công
+- **400**: Bad Request - Lỗi từ client
+- **401**: Unauthorized - Chưa xác thực
+- **403**: Forbidden - Không có quyền
+- **404**: Not Found - Không tìm thấy
+- **500**: Internal Server Error - Lỗi server
+
+### Versioning
+- Sử dụng version trong URL: `/v1/books`
+- Hoặc trong header: `Accept: application/vnd.api+json;version=1`
+
+## 9. Ví dụ Thực tế
+
+```bash
+# Lấy danh sách sách
+curl -X GET "https://api.bookstore.com/v1/books?page=1&limit=10"
+
+# Tạo sách mới
+curl -X POST "https://api.bookstore.com/v1/books" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Số đỏ", "author_id": 2, "genre_id": 1}'
+
+# Cập nhật sách
+curl -X PUT "https://api.bookstore.com/v1/books/1" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Tắt đèn - Tái bản 2023", "author_id": 1, "genre_id": 2}'
+
+# Xóa sách
+curl -X DELETE "https://api.bookstore.com/v1/books/1"
+```
+
+---
+
+**Lưu ý**: Tài liệu này tuân thủ chuẩn RESTful API và có thể được điều chỉnh theo yêu cầu cụ thể của dự án.
