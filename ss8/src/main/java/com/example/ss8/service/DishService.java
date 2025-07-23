@@ -1,150 +1,112 @@
 package com.example.ss8.service;
 
-
 import com.example.ss8.exception.BadRequestException;
-import com.example.ss8.model.dto.DishDTO;
+import com.example.ss8.exception.NotFoundException;
+import com.example.ss8.model.dto.request.DishDTO;
+import com.example.ss8.model.dto.response.DataResponse;
 import com.example.ss8.model.entity.Dish;
 import com.example.ss8.repository.DishRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
-@Transactional
 public class DishService {
 
     private final DishRepository dishRepository;
     private final CloudinaryService cloudinaryService;
 
-    /**
-     * Thêm món ăn mới
-     */
-    public Dish createDish(DishDTO dishDTO) {
-        try {
-            // Upload ảnh lên Cloudinary nếu có
-            String imageUrl = null;
-            if (dishDTO.getImage() != null && !dishDTO.getImage().isEmpty()) {
-                imageUrl = cloudinaryService.uploadImage(dishDTO.getImage());
-                log.info("Đã upload ảnh thành công: {}", imageUrl);
-            }
-
-            // Tạo entity Dish từ DTO
-            Dish dish =Dish.builder()
-                    .name(dishDTO.getName())
-                    .description(dishDTO.getDescription())
-                    .price(dishDTO.getPrice())
-                    .status(dishDTO.getStatus() != null ? dishDTO.getStatus() : "ACTIVE")
-                    .imageUrl(imageUrl)
-                    .build();
-
-            Dish savedDish = dishRepository.save(dish);
-            log.info("Đã tạo món ăn mới với ID: {}", savedDish.getId());
-
-            return savedDish;
-
-        } catch (IOException e) {
-            log.error("Lỗi khi upload ảnh: {}", e.getMessage());
-            throw new BadRequestException("Lỗi khi upload ảnh: " + e.getMessage());
+    @Transactional
+    public DataResponse<Dish> createDish(DishDTO dishDTO) throws BadRequestException{
+        // Kiểm tra tên món ăn đã tồn tại
+        if (dishRepository.existsByNameIgnoreCase(dishDTO.getName())) {
+            throw new BadRequestException("Tên món ăn đã tồn tại",
+                    Map.of("name", "Món ăn với tên này đã có trong hệ thống"));
         }
-    }
 
-    /**
-     * Cập nhật món ăn
-     */
-    public Dish updateDish(Long id, DishDTO dishDTO) {
-        try {
-            // Tìm món ăn theo ID
-            Dish existingDish = dishRepository.findById(id)
-                    .orElseThrow(() -> new NoSuchElementException("Không tìm thấy món ăn với ID: " + id));
-
-            // Lưu URL ảnh cũ để xóa sau
-            String oldImageUrl = existingDish.getImageUrl();
-
-            // Cập nhật thông tin
-            existingDish.setName(dishDTO.getName());
-            existingDish.setDescription(dishDTO.getDescription());
-            existingDish.setPrice(dishDTO.getPrice());
-            existingDish.setStatus(dishDTO.getStatus() != null ? dishDTO.getStatus() : existingDish.getStatus());
-
-            // Xử lý ảnh mới nếu có
-            if (dishDTO.getImage() != null && !dishDTO.getImage().isEmpty()) {
-                // Upload ảnh mới
-                String newImageUrl = cloudinaryService.uploadImage(dishDTO.getImage());
-                existingDish.setImageUrl(newImageUrl);
-
-                // Xóa ảnh cũ nếu có
-                if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
-                    String publicId = cloudinaryService.extractPublicId(oldImageUrl);
-                    if (publicId != null) {
-                        cloudinaryService.deleteImage("dishes/" + publicId);
-                        log.info("Đã xóa ảnh cũ: {}", oldImageUrl);
-                    }
-                }
-
-                log.info("Đã upload ảnh mới: {}", newImageUrl);
-            }
-
-            Dish updatedDish = dishRepository.save(existingDish);
-            log.info("Đã cập nhật món ăn với ID: {}", updatedDish.getId());
-
-            return updatedDish;
-
-        } catch (IOException e) {
-            log.error("Lỗi khi xử lý ảnh: {}", e.getMessage());
-            throw new BadRequestException("Lỗi khi xử lý ảnh: " + e.getMessage());
+        // Upload ảnh lên Cloudinary
+        String imageUrl = null;
+        if (dishDTO.getImage() != null && !dishDTO.getImage().isEmpty()) {
+            imageUrl = cloudinaryService.uploadImage(dishDTO.getImage());
         }
+
+        // Tạo đối tượng Dish
+        Dish dish = new Dish();
+        dish.setName(dishDTO.getName());
+        dish.setDescription(dishDTO.getDescription());
+        dish.setPrice(dishDTO.getPrice());
+        dish.setStatus(dishDTO.getStatus());
+        dish.setImage(imageUrl);
+
+        return DataResponse.< Dish > builder()
+                .key("Dish")
+                .data(dishRepository.save(dish))
+                .build();
     }
 
-    /**
-     * Xóa món ăn
-     */
-    public void deleteDish(Long id) {
-        try {
-            Dish dish = dishRepository.findById(id)
-                    .orElseThrow(() -> new NoSuchElementException("Không tìm thấy món ăn với ID: " + id));
+    @Transactional
+    public DataResponse<Dish> updateDish(Long id, DishDTO dishDTO) throws NotFoundException, BadRequestException {
+        Dish existingDish = dishRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy món ăn với ID: " + id));
 
-            // Xóa ảnh trên Cloudinary nếu có
-            if (dish.getImageUrl() != null && !dish.getImageUrl().isEmpty()) {
-                String publicId = cloudinaryService.extractPublicId(dish.getImageUrl());
-                if (publicId != null) {
-                    cloudinaryService.deleteImage("dishes/" + publicId);
-                    log.info("Đã xóa ảnh: {}", dish.getImageUrl());
-                }
-            }
-
-            dishRepository.deleteById(id);
-            log.info("Đã xóa món ăn với ID: {}", id);
-
-        } catch (IOException e) {
-            log.error("Lỗi khi xóa ảnh: {}", e.getMessage());
-            throw new BadRequestException("Lỗi khi xóa ảnh: " + e.getMessage());
+        // Kiểm tra tên món ăn trùng lặp (ngoại trừ món ăn hiện tại)
+        if (!existingDish.getName().equalsIgnoreCase(dishDTO.getName()) &&
+                dishRepository.existsByNameIgnoreCase(dishDTO.getName())) {
+            throw new BadRequestException("Tên món ăn đã tồn tại",
+                    Map.of("name", "Món ăn với tên này đã có trong hệ thống"));
         }
+
+        // Xử lý ảnh nếu có ảnh mới
+        String imageUrl = existingDish.getImage();
+        if (dishDTO.getImage() != null && !dishDTO.getImage().isEmpty()) {
+            // Xóa ảnh cũ nếu có
+            if (existingDish.getImage() != null) {
+                cloudinaryService.deleteImage(existingDish.getImage());
+            }
+            // Upload ảnh mới
+            imageUrl = cloudinaryService.uploadImage(dishDTO.getImage());
+        }
+
+        // Cập nhật thông tin món ăn
+        existingDish.setName(dishDTO.getName());
+        existingDish.setDescription(dishDTO.getDescription());
+        existingDish.setPrice(dishDTO.getPrice());
+        existingDish.setStatus(dishDTO.getStatus());
+        existingDish.setImage(imageUrl);
+        return DataResponse.<Dish>builder()
+                .key("dish")
+                .data(dishRepository.save(existingDish))
+                .build();
     }
 
-    /**
-     * Lấy tất cả món ăn
-     */
-    @Transactional(readOnly = true)
-    public List<Dish> getAllDishes() {
-        List<Dish> dishes = dishRepository.findAll();
-        log.info("Đã lấy {} món ăn", dishes.size());
-        return dishes;
+    @Transactional
+    public void deleteDish(Long id) throws NotFoundException{
+
+        Dish dish = dishRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy món ăn với ID: " + id));
+
+        // Xóa ảnh từ Cloudinary nếu có
+        if (dish.getImage() != null) {
+            cloudinaryService.deleteImage(dish.getImage());
+        }
+
+        dishRepository.delete(dish);
     }
 
-    /**
-     * Lấy món ăn theo ID
-     */
-    @Transactional(readOnly = true)
-    public Dish getDishById(Long id) {
+    public DataResponse<List<Dish>>  getAllDishes() {
+        DataResponse<List<Dish>> response = DataResponse.<List<Dish>>builder()
+                .key("dishs")
+                .data(dishRepository.findAll())
+                .build();
+        return response;
+    }
+
+    public Dish getDishById(Long id) throws NotFoundException {
         return dishRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy món ăn với ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy món ăn với ID: " + id));
     }
-
 }

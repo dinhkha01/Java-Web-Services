@@ -6,13 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
-@Table(name = "dishes")
+@Table(name = "ingredients")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dish {
+public class Ingredient {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,14 +23,12 @@ public class Dish {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Column(nullable = false)
+    private Integer stock;
 
     @Column(nullable = false)
-    private Double price;
+    private LocalDate expiry;
 
-    @Column(nullable = false)
-    private String status;
-
+    @Column
     private String image;
 }

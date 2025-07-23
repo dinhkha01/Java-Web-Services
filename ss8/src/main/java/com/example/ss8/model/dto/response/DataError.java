@@ -1,4 +1,4 @@
-package com.example.ss8.model.dto;
+package com.example.ss8.model.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
