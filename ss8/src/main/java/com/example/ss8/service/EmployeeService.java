@@ -37,7 +37,7 @@ public class EmployeeService {
                 .data(employee)
                 .build();
     }
-    @Transactional
+
     public DataResponse<Employee> createEmployee(Employee employee) {
         return DataResponse.<Employee>builder()
                 .key("employee")

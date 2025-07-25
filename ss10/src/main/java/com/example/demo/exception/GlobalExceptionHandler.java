@@ -1,6 +1,6 @@
 package com.example.demo.exception;
 
-import com.example.ss9.model.dto.response.DataError;
+import com.example.demo.model.dto.response.DataError;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

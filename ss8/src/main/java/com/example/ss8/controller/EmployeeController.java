@@ -25,7 +25,7 @@ public class EmployeeController {
         return new ResponseEntity<>(employeeService.getAllEmployees(), HttpStatus.OK);
     }
     @PostMapping
-    public ResponseEntity<DataResponse<Employee>> createEmployee(@Valid @RequestBody Employee employee) throws BadRequestException {
+    public ResponseEntity<DataResponse<Employee>> createEmployee(@Valid @RequestBody Employee employee)  {
         return new ResponseEntity<>(employeeService.createEmployee(employee), HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
