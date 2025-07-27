@@ -23,11 +23,11 @@ public class AccountController {
         return new  ResponseEntity<>(accountService.createAccount(request), HttpStatus.CREATED);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<DataResponse<Account>> updateAccount(@PathVariable UUID id, @RequestBody Account request) throws NotFoundException{
+    public ResponseEntity<DataResponse<Account>> updateAccount(@PathVariable Long id, @RequestBody Account request) throws NotFoundException{
         return new ResponseEntity<>(accountService.updateAccount(id,request),HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAccount(@PathVariable UUID id)throws NotFoundException{
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long id)throws NotFoundException{
         accountService.delete(id);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

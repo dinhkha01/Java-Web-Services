@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -14,15 +13,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Notification {
+public class CreditCard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name="account_id")
+    @OneToOne
+    @JoinColumn(name = "account_id")
     private Account account;
-    private String content;
+    private Double spendingLimit;
+    private Double amountSpent ;
     private String status;
-    private LocalDateTime createdAt;
-
 }

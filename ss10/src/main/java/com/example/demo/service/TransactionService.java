@@ -24,7 +24,7 @@ public class TransactionService {
     private final NotificationService notificationService;
 
     @Transactional
-    public DataResponse<Transaction> transferMoney(UUID senderId, UUID receiverId, Double amount, String note)
+    public DataResponse<Transaction> transferMoney(Long senderId, Long receiverId, Double amount, String note)
             throws NotFoundException, BadRequestException {
 
         try {

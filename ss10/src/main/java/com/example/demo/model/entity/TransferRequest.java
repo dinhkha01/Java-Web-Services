@@ -12,8 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransferRequest {
-    private UUID senderId;
-    private UUID receiverId;
+    private Long senderId;
+    private Long receiverId;
     private Double amount;
     private String note;
 }

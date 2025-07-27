@@ -19,8 +19,8 @@ import java.util.UUID;
 @Entity
 public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String fullName;
     private String phone;
     private String cccd;

@@ -16,8 +16,8 @@ import java.util.UUID;
 @Entity
 public class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @ManyToOne
     @JoinColumn(name = "receiver_id")
     private Account receiver;

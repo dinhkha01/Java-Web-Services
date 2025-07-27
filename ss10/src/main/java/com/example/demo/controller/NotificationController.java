@@ -19,7 +19,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<DataResponse<List<Notification>>> getNotificationsByAccountId(@PathVariable UUID accountId) throws NotFoundException {
+    public ResponseEntity<DataResponse<List<Notification>>> getNotificationsByAccountId(@PathVariable Long accountId) throws NotFoundException {
         return new ResponseEntity<>(notificationService.getNotificationsByAccountId(accountId), HttpStatus.OK);
     }
 }

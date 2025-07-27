@@ -21,7 +21,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final AccountRepository accountRepository;
 
-    public DataResponse<List<Notification>> getNotificationsByAccountId(UUID accountId) throws NotFoundException {
+    public DataResponse<List<Notification>> getNotificationsByAccountId(Long accountId) throws NotFoundException {
         if (!accountRepository.existsById(accountId)) {
             throw new NotFoundException("Không tìm thấy tài khoản với ID: " + accountId);
         }

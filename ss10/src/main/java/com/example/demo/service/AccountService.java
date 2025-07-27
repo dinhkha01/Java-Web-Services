@@ -43,7 +43,7 @@ public class AccountService  {
                 .data(accountRepository.save(account))
                 .build();
     }
-    public DataResponse<Account> updateAccount(UUID id, Account request) throws NotFoundException {
+    public DataResponse<Account> updateAccount(Long id, Account request) throws NotFoundException {
         Account oldAccount = accountRepository.findById(id).get();
         log.debug("Thoong tin cu" + oldAccount);
         if(!accountRepository.existsById(id)){
@@ -57,7 +57,7 @@ public class AccountService  {
                 .data(accountRepository.save(request))
                 .build();
     }
-    public DataResponse<Void> delete(UUID id) throws NotFoundException{
+    public DataResponse<Void> delete(Long id) throws NotFoundException{
         if(!accountRepository.existsById(id)){
             throw new NotFoundException("Không tìm thấy tài khoản với ID: " + id);
         }
