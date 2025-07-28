@@ -1,0 +1,29 @@
+Spring Security là một framework bảo mật mạnh mẽ và có thể tùy chỉnh cao cho các ứng dụng Java. Nó cung cấp một giải pháp toàn diện cho việc xác thực (authentication) và phân quyền (authorization) trong ứng dụng Spring.
+4 tính năng quan trọng của Spring Security:
+
+Authentication (Xác thực)
+
+Xác minh danh tính người dùng thông qua username/password, JWT token, OAuth2, LDAP, etc.
+Hỗ trợ nhiều phương thức xác thực khác nhau
+Quản lý session và remember-me functionality
+
+
+Authorization (Phân quyền)
+
+Kiểm soát quyền truy cập vào các resource dựa trên role và authority
+Method-level security với annotations như @PreAuthorize, @PostAuthorize
+URL-based security configuration
+
+
+CSRF Protection (Bảo vệ chống tấn công CSRF)
+
+Tự động tạo và validate CSRF token
+Bảo vệ ứng dụng khỏi các cuộc tấn công Cross-Site Request Forgery
+Có thể tùy chỉnh hoặc tắt cho REST APIs
+
+
+Password Security (Bảo mật mật khẩu)
+
+Mã hóa mật khẩu với các thuật toán mạnh (BCrypt, Argon2, SCrypt)
+Password strength validation
+Hỗ trợ multiple password encoders
