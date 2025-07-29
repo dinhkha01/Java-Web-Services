@@ -1,0 +1,35 @@
+/*
+ * CHI TIẾT LOGIC PHÂN QUYỀN:
+ *
+ * 1. PUBLIC ENDPOINTS (/api/v1/auth/**)
+ *    - Mục đích: Đăng ký, đăng nhập
+ *    - Quyền truy cập: Tất cả mọi người (không cần xác thực)
+ *    - Ví dụ: POST /api/v1/auth/sign-in, POST /api/v1/auth/sign-up
+ *
+ * 2. ADMIN ENDPOINTS (/api/v1/admin/**)
+ *    - Mục đích: Quản trị hệ thống
+ *    - Quyền truy cập: Chỉ user có role "ADMIN"
+ *    - Ví dụ: GET /api/v1/admin/home, DELETE /api/v1/admin/users/{id}
+ *
+ * 3. USER ENDPOINTS (/api/v1/user/**)
+ *    - Mục đích: Chức năng người dùng thường
+ *    - Quyền truy cập: User có role "USER" hoặc "ADMIN"
+ *    - Ví dụ: GET /api/v1/user/profile, PUT /api/v1/user/profile
+ *
+ * 4. MODERATOR ENDPOINTS (/api/v1/moderator/**)
+ *    - Mục đích: Quản lý nội dung
+ *    - Quyền truy cập: User có authority "ROLE_MODERATOR"
+ *    - Ví dụ: POST /api/v1/moderator/approve-content
+ *
+ * 5. OTHER AUTHENTICATED ENDPOINTS
+ *    - Mục đích: Các chức năng khác cần xác thực
+ *    - Quyền truy cập: Bất kỳ user đã đăng nhập
+ *    - Ví dụ: GET /hello, GET /
+ *
+ * LƯU Ý:
+ * - hasRole("ADMIN") sẽ tự động thêm prefix "ROLE_" → tìm "ROLE_ADMIN"
+ * - hasAuthority("ROLE_MODERATOR") tìm chính xác "ROLE_MODERATOR"
+ * - hasAnyRole("USER", "ADMIN") cho phép cả USER và ADMIN truy cập
+ * - permitAll() cho phép truy cập mà không cần xác thực
+ * - authenticated() yêu cầu user phải đăng nhập
+ */
