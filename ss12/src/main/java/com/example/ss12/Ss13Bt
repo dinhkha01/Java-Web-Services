@@ -1,0 +1,336 @@
+JWT (JSON Web Token) là một tiêu chuẩn mở (RFC 7519) dùng để truyền tải thông tin một cách an toàn giữa các bên thông qua định dạng JSON. JWT thường được sử dụng để xác thực và ủy quyền trong các ứng dụng web và API.
+Khái niệm JWT
+JWT là một chuỗi ký tự được mã hóa Base64URL, chứa thông tin được ký số để đảm bảo tính toàn vẹn. Token này có thể được xác minh và tin cậy vì được ký bằng secret key hoặc cặp khóa public/private.
+Điểm mạnh của JWT:
+Tính độc lập (Self-contained): JWT chứa tất cả thông tin cần thiết về người dùng, không cần truy vấn database để xác thực.
+Khả năng mở rộng: Dễ dàng scale horizontally vì không cần lưu trữ session trên server.
+Hỗ trợ đa nền tảng: Có thể sử dụng trên web, mobile, desktop với nhiều ngôn ngữ lập trình khác nhau.
+Hiệu suất cao: Giảm tải cho database vì không cần truy vấn session.
+Linh hoạt: Có thể chứa custom claims phù hợp với business logic.
+Điểm yếu của JWT:
+Kích thước lớn: JWT có kích thước lớn hơn session ID truyền thống, tăng băng thông.
+Khó thu hồi: Một khi được phát hành, JWT khó bị thu hồi trước khi hết hạn.
+Bảo mật thông tin: Payload có thể được decode, không nên chứa thông tin nhạy cảm.
+Complexity: Việc implement và quản lý JWT phức tạp hơn session truyền thống.
+Cấu trúc JWT
+JWT gồm ba phần được phân tách bởi dấu chấm (.):
+header.payload.signature
+Ví dụ JWT mẫu:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+1. Header
+Phần đầu (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9) khi decode sẽ được:
+json{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+Ý nghĩa:
+
+alg: Thuật toán mã hóa được sử dụng (HS256 = HMAC SHA256)
+typ: Loại token (JWT)
+
+2. Payload
+Phần thân (eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ) khi decode:
+json{
+  "sub": "1234567890",
+  "name": "John Doe",
+  "iat": 1516239022
+}
+Ý nghĩa:
+
+sub (Subject): ID của người dùng
+name: Tên người dùng (custom claim)
+iat (Issued At): Thời gian phát hành token
+
+Các claims chuẩn khác:
+
+exp (Expiration Time): Thời gian hết hạn
+iss (Issuer): Nhà phát hành token
+aud (Audience): Đối tượng sử dụng token
+nbf (Not Before): Token chỉ có hiệu lực sau thời điểm này
+
+3. Signature
+Phần chữ ký (SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c) được tạo bằng:
+HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  secret
+)
+Mục đích: Đảm bảo token không bị thay đổi và xác thực nguồn gốc.
+Các trường hợp sử dụng phổ biến
+1. Authentication (Xác thực)
+Sau khi đăng nhập thành công, server trả về JWT. Client gửi token này trong các request tiếp theo để chứng minh danh tính.
+2. Authorization (Ủy quyền)
+JWT có thể chứa thông tin về quyền hạn của user, giúp server quyết định user có được phép truy cập resource hay không.
+3. Single Sign-On (SSO)
+JWT cho phép user đăng nhập một lần và truy cập nhiều ứng dụng khác nhau mà không cần đăng nhập lại.
+4. Information Exchange
+JWT là cách an toàn để truyền tải thông tin giữa các parties vì có thể verify tính toàn vẹn của dữ liệu.
+5. API Authentication
+Sử dụng trong RESTful API để xác thực các request từ client, đặc biệt phù hợp với kiến trúc microservices.
+6. Mobile Applications
+JWT rất phù hợp cho mobile app vì không cần maintain session state trên server, giúp app hoạt động offline tốt hơn.
+7. Forgot Password
+JWT có thể được sử dụng để tạo token reset password có thời hạn, đảm bảo tính bảo mật.
+JWT đã trở thành một giải pháp phổ biến trong việc xây dựng các ứng dụng hiện đại nhờ tính linh hoạt và khả năng mở rộng tốt, tuy nhiên cần được implement cẩn thận để đảm bảo tính bảo mật.
+
+
+BT2
+Chi tiết các bước trong quy trình
+Bước 1: Login Request (Yêu cầu đăng nhập)
+Client gửi thông tin đăng nhập:
+
+Mục đích: Xác thực danh tính người dùng
+Dữ liệu gửi: Username, password (có thể kèm thêm email, phone)
+Phương thức: POST request đến endpoint /login hoặc /auth
+Định dạng: JSON body hoặc form data
+
+javascript// Ví dụ request
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "secure_password123"
+}
+Bước 2: Validate Credentials (Xác thực thông tin)
+Server kiểm tra thông tin đăng nhập:
+
+Truy vấn database: Tìm user dựa trên username/email
+Verify password: So sánh password hash với dữ liệu trong DB
+Check account status: Kiểm tra tài khoản có bị khóa, pending không
+Additional validations: Rate limiting, CAPTCHA nếu cần
+
+python# Pseudo code
+def validate_credentials(username, password):
+    user = database.find_user(username)
+    if not user:
+        return False, "User not found"
+
+    if not verify_password(password, user.password_hash):
+        return False, "Invalid password"
+
+    if user.status != "active":
+        return False, "Account inactive"
+
+    return True, user
+Bước 3: Generate JWT Token (Phát sinh token)
+Server tạo JWT token khi xác thực thành công:
+3.1. Tạo Header
+json{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+3.2. Tạo Payload
+json{
+  "sub": "user_id_123",
+  "username": "john_doe",
+  "email": "john@example.com",
+  "role": "user",
+  "iat": 1640995200,
+  "exp": 1641081600,
+  "iss": "myapp.com"
+}
+3.3. Tạo Signature
+javascriptconst signature = HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  SECRET_KEY
+);
+3.4. Kết hợp thành JWT
+header.payload.signature
+Bước 4: JWT Response (Trả về token)
+Server gửi token về client:
+json{
+  "success": true,
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 86400,
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "user_id_123",
+    "username": "john_doe",
+    "email": "john@example.com"
+  }
+}
+Thông tin response:
+
+access_token: Token chính để xác thực
+token_type: Loại token (thường là "Bearer")
+expires_in: Thời gian sống của token (giây)
+refresh_token: Token để làm mới access_token
+user: Thông tin cơ bản của user
+
+Bước 5: Store Token (Lưu trữ token)
+Client lưu trữ token:
+Các phương pháp lưu trữ:
+
+localStorage: Persistent, dễ truy cập
+sessionStorage: Chỉ tồn tại trong session
+Memory: An toàn nhất, mất khi refresh
+Secure HttpOnly Cookie: An toàn, tự động gửi
+
+javascript// Lưu vào localStorage
+localStorage.setItem('access_token', response.access_token);
+
+// Hoặc lưu vào memory
+let authToken = response.access_token;
+
+// Set up axios interceptor
+axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+Bước 6: API Request with Token (Gửi request kèm token)
+Client gửi token trong các request tiếp theo:
+javascript// Trong HTTP Header
+GET /api/users/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+Các cách gửi token:
+
+Authorization Header: Cách phổ biến nhất
+Query Parameter: Ít bảo mật hơn
+Request Body: Cho POST requests
+Custom Header: Ví dụ X-Auth-Token
+
+Bước 7: Token Validation (Kiểm tra token)
+Server xác thực token:
+7.1. Extract Token
+javascriptconst authHeader = req.headers.authorization;
+if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  return res.status(401).json({ error: 'No token provided' });
+}
+
+const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+7.2. Verify Signature
+javascripttry {
+  const decoded = jwt.verify(token, SECRET_KEY);
+} catch (error) {
+  if (error.name === 'TokenExpiredError') {
+    return res.status(401).json({ error: 'Token expired' });
+  }
+  return res.status(401).json({ error: 'Invalid token' });
+}
+7.3. Validate Claims
+javascript// Check expiration
+if (decoded.exp < Date.now() / 1000) {
+  return res.status(401).json({ error: 'Token expired' });
+}
+
+// Check issuer
+if (decoded.iss !== 'myapp.com') {
+  return res.status(401).json({ error: 'Invalid issuer' });
+}
+
+// Check user still exists and active
+const user = await database.findUser(decoded.sub);
+if (!user || user.status !== 'active') {
+  return res.status(401).json({ error: 'User inactive' });
+}
+Bước 8: Process Request (Xử lý request)
+Server thực thi business logic:
+javascript// Attach user info to request
+req.user = {
+  id: decoded.sub,
+  username: decoded.username,
+  role: decoded.role
+};
+
+// Continue with the actual request processing
+next(); // Express.js middleware
+Bước 9: Protected Resource Response (Trả về dữ liệu)
+Server gửi response về client:
+json{
+  "status": "success",
+  "data": {
+    "user_profile": {
+      "id": "user_id_123",
+      "username": "john_doe",
+      "email": "john@example.com",
+      "created_at": "2023-01-01T00:00:00Z"
+    }
+  }
+}
+Vai trò của từng bước
+Bước 1-2: Authentication Phase
+
+Mục đích: Xác định danh tính người dùng
+Bảo mật: Sử dụng HTTPS, hash password, rate limiting
+Kết quả: Xác nhận user hợp lệ
+
+Bước 3-4: Token Issuance Phase
+
+Mục đích: Phát hành "vé" truy cập có thời hạn
+Lợi ích: Stateless, chứa thông tin user, có chữ ký số
+Tối ưu: Không cần query DB trong các request sau
+
+Bước 5: Token Storage Phase
+
+Quan trọng: Quyết định bảo mật và UX
+Trade-off: Bảo mật vs tiện lợi vs hiệu suất
+Best practice: Secure storage + proper expiration
+
+Bước 6-9: Authorization Phase
+
+Mục đích: Xác thực và ủy quyền cho từng request
+Hiệu quả: Nhanh chóng, không cần session lookup
+Linh hoạt: Có thể decode để lấy user info ngay lập tức
+
+Các tình huống xử lý lỗi
+Token Expired
+javascript// Client tự động refresh token
+if (error.response.status === 401 && error.response.data.error === 'Token expired') {
+  const newToken = await refreshAccessToken();
+  // Retry original request with new token
+}
+Invalid Token
+javascript// Redirect to login page
+if (error.response.status === 401) {
+  localStorage.removeItem('access_token');
+  window.location.href = '/login';
+}
+Network Issues
+javascript// Implement retry logic
+const retryRequest = async (request, maxRetries = 3) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await request();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await delay(1000 * Math.pow(2, i)); // Exponential backoff
+    }
+  }
+};
+bt6
+JWT Error Handling - Xử lý lỗi JWT
+1. Các tình huống lỗi phổ biến của JWT
+1.1 JWT hết hạn (Token Expired)
+
+Mô tả: Token đã vượt quá thời gian exp (expiration time)
+Nguyên nhân: Thời gian sử dụng token đã hết
+Tần suất: Rất phổ biến
+
+1.2 JWT bị sửa đổi (Token Tampered)
+
+Mô tả: Signature không khớp với payload/header
+Nguyên nhân: Token bị thay đổi nội dung hoặc bị tấn công
+Tần suất: Ít gặp nhưng nghiêm trọng
+
+1.3 JWT không hợp lệ (Invalid Token)
+
+Mô tả: Format sai, thiếu thông tin bắt buộc
+Nguyên nhân: Token bị corrupt, sai format, hoặc không phải JWT
+Tần suất: Phổ biến khi có lỗi implementation
+
+1.4 JWT chưa có hiệu lực (Token Not Yet Valid)
+
+Mô tả: Token có nbf (not before) trong tương lai
+Nguyên nhân: Đồng hồ hệ thống không đồng bộ
+Tần suất: Hiếm gặp
+
+1.5 JWT thiếu hoặc không được gửi (Missing Token)
+
+Mô tả: Request không có Authorization header
+Nguyên nhân: Client quên gửi token hoặc đã logout
+Tần suất: Phổ biến
+
+1.6 JWT bị thu hồi (Token Revoked)
+
+Mô tả: Token có trong blacklist
+Nguyên nhân: User logout, đổi mật khẩu, hoặc bị ban
+Tần suất: Trung bình
