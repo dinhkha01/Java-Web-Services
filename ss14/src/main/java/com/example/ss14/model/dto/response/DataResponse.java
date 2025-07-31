@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Builder
 public class DataResponse<T> {
-    private int code;
-    private String key;
+    private int status;
+    private String message;
     private T data;
 }

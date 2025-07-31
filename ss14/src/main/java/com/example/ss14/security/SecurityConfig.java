@@ -34,7 +34,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * 8. /api/v1/user/** - USER & ADMIN: User có role USER hoặc ADMIN
  * 9. /api/v1/moderator/** - MODERATOR only: Chỉ user có authority ROLE_MODERATOR
  * 10. /api/v1/hello - Authenticated: Yêu cầu xác thực JWT
- * 11. Các endpoint khác - Authenticated: Yêu cầu xác thực
+ * 11. /api/tickets/book - USER & ADMIN: Đặt vé
+ * 12. /api/tickets/my - USER & ADMIN: Xem vé của mình
+ * 13. /api/admin/tickets - ADMIN only: Xem tất cả vé
+ * 14. /api/showtimes/{id}/booked-seats - Public: Xem ghế đã đặt
+ * 15. /api/showtimes/{id}/ticket-count - Public: Đếm số vé
+ * 16. Các endpoint khác - Authenticated: Yêu cầu xác thực
  */
 @Configuration
 @EnableWebSecurity
@@ -100,19 +105,25 @@ public class SecurityConfig {
                         .requestMatchers("PUT", "/api/v1/admin/showtimes/**").hasRole("ADMIN")
                         .requestMatchers("DELETE", "/api/v1/admin/showtimes/**").hasRole("ADMIN")
 
-                        // 4. ADMIN ENDPOINTS - Chỉ role ADMIN
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        // 4. TICKET ENDPOINTS - Phân quyền theo chức năng
+                        .requestMatchers("POST", "/api/tickets/book").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("GET", "/api/tickets/my").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("GET", "/api/showtimes/*/booked-seats").permitAll()
+                        .requestMatchers("GET", "/api/showtimes/*/ticket-count").permitAll()
 
-                        // 5. USER & ADMIN - Role USER hoặc ADMIN
+                        // 5. ADMIN ENDPOINTS - Chỉ role ADMIN
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // 6. USER & ADMIN - Role USER hoặc ADMIN
                         .requestMatchers("/api/v1/user/**").hasAnyRole("USER", "ADMIN")
 
-                        // 6. MODERATOR ONLY - Authority ROLE_MODERATOR
+                        // 7. MODERATOR ONLY - Authority ROLE_MODERATOR
                         .requestMatchers("/api/v1/moderator/**").hasAuthority("ROLE_MODERATOR")
 
-                        // 7. HELLO ENDPOINT - Yêu cầu xác thực (bất kỳ role nào)
+                        // 8. HELLO ENDPOINT - Yêu cầu xác thực (bất kỳ role nào)
                         .requestMatchers("/api/v1/hello").authenticated()
 
-                        // 8. Tất cả endpoints khác cần xác thực
+                        // 9. Tất cả endpoints khác cần xác thực
                         .anyRequest().authenticated()
                 )
 
